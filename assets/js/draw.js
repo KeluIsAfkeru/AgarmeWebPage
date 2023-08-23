@@ -17,9 +17,10 @@ export class Draw {
     }
 
     addStars() {
-        const starAmount = 40;
+        const starAmount = 100;
         const centerX = this.app.screen.width / 2;
         const centerY = this.app.screen.height / 2;
+        const maxSpeed = 5; // 设定最大速度
 
         for (let i = 0; i < starAmount; i++) {
             let star = PIXI.Sprite.from(PIXI.Texture.WHITE);
@@ -37,6 +38,7 @@ export class Draw {
 
             star.speed = Math.random() * 1.1;
             star.angle = angle;
+            star.maxSpeed = 0.8;
 
             this.app.stage.addChild(star);
             this.stars.push(star);
@@ -56,20 +58,24 @@ export class Draw {
     }
 
     set isDrawStars(value) {
-        this._isDrawStars = value;
         if (value) {
             this.addStars();
+            if (this.ticker) {
+                this.app.ticker.remove(this.ticker);
+            }
             this.ticker = (delta) => {
                 for (let i = this.stars.length - 1; i >= 0; i--) {
                     let star = this.stars[i];
-                    star.x += Math.cos(star.angle) * star.speed * delta;
-                    star.y += Math.sin(star.angle) * star.speed * delta;
+                    let tempIncrease = Math.min(star.speed * delta, star.maxSpeed)
+                    star.x += Math.cos(star.angle) * tempIncrease;
+                    star.y += Math.sin(star.angle) * tempIncrease;
 
                     // 如果星星移动到屏幕外，重置位置到屏幕中心
                     if (star.x < 0 || star.x > this.app.screen.width ||
                         star.y < 0 || star.y > this.app.screen.height) {
-                        star.x = this.app.screen.width / 2;
-                        star.y = this.app.screen.height / 2;
+                        star.x = this.app.screen.width / 2 + (Math.random() - 0.5) * 2 * 20;
+                        star.y = this.app.screen.height / 2 + (Math.random() - 0.5) * 2 * 20;
+                        star.speed = Math.random() * 0.8;
                     }
                 }
             };
@@ -77,6 +83,7 @@ export class Draw {
         } else {
             this.removeStars();
         }
+        this._isDrawStars = value;
     }
 
     get isDrawStars() {

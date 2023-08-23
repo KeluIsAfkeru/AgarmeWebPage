@@ -16,7 +16,7 @@ import {
 } from './settingsManager.js';
 
 const status = new Info();
-const serverIp = "http://127.0.0.1:5500";
+const serverIp = "https://git.afkeru.top";
 let currentServer = null;
 let defaultServers = [{
         name: '本地1',
@@ -59,6 +59,7 @@ let app = new PIXI.Application({
     transparent: true,
 });
 let renderer = new Draw(app);
+renderer._isDrawStars = true;
 const client = new WebSocketClient(renderer);
 document.getElementById('pixi-container').appendChild(app.view);
 
@@ -82,12 +83,11 @@ sprite.height = app.renderer.height;
 
 app.stage.addChild(sprite);
 
-//监听窗口大小改变
-setInterval(() => {
-    if (window.innerWidth !== lastWidth || window.innerHeight !== lastHeight) {
-        const newWidth = window.innerWidth;
-        const newHeight = window.innerHeight;
+window.addEventListener('resize', () => {
+    const newWidth = window.innerWidth;
+    const newHeight = window.innerHeight;
 
+    if (newWidth !== lastWidth || newHeight !== lastHeight) {
         canvas.width = newWidth;
         canvas.height = newHeight;
 
@@ -97,14 +97,21 @@ setInterval(() => {
         ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, newWidth, newHeight);
 
-        texture.update();
-        sprite.width = app.renderer.width;
-        sprite.height = app.renderer.height;
+        if (texture) {
+            texture.update();
+        }
 
-        app.renderer.resize(newWidth,  newHeight);
+        if (sprite) {
+            sprite.width = app.renderer.width;
+            sprite.height = app.renderer.height;
+        }
 
+        app.renderer.resize(newWidth, newHeight);
+
+        lastWidth = newWidth;
+        lastHeight = newHeight;
     }
-}, 100);
+});
 
 renderer.isDrawStars = true;
 

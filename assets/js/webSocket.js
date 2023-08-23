@@ -21,7 +21,6 @@ export default class WebSocketClient {
 
                 this.socket.addEventListener('error', (event) => {
                     console.error('WebSocket error: ', event);
-                    this.renderer.isDrawStars = true;
                     reject(new Error('WebSocket error'));
                 });
 
@@ -42,7 +41,9 @@ export default class WebSocketClient {
                 });
 
                 this.socket.addEventListener('close', (event) => {
-                    this.renderer.isDrawStars = true;
+                    if(this.isConnected){
+                        this.renderer.isDrawStars = true;
+                    }
                     console.log('Connection closed');
                     this.isConnected = false;
                     if (event.wasClean) {
