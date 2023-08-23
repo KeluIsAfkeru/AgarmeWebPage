@@ -2,6 +2,9 @@ import ChatManager from './chatManager.js';
 import LeaderBoard from './leaderBoard.js';
 import KeyManager from './keyManager.js';
 import Info from './info.js';
+import {
+    Draw
+} from './draw.js';
 import StatusMessage from './info.js';
 
 import {
@@ -11,7 +14,7 @@ import {
 } from './settingsManager.js';
 
 const status = new Info();
-const serverIp = "keluisafkeru.github.io/AgarmeWebPage";
+const serverIp = "http://127.0.0.1:5500";
 let currentServer = null;
 let defaultServers = [{
         name: '本地1',
@@ -44,6 +47,59 @@ let defaultServers = [{
     // ...更多服务器
 ];
 let servers;
+let lastWidth = window.innerWidth;
+let lastHeight = window.innerHeight;
+
+/* 初始化pixiJS */
+let app = new PIXI.Application({
+    width: window.innerWidth,
+    height: window.innerHeight,
+    transparent: true,
+});
+let renderer = new Draw(app);
+document.getElementById('pixi-container').appendChild(app.view);
+
+var canvas = document.createElement('canvas');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+var ctx = canvas.getContext('2d');
+
+var gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
+gradient.addColorStop(0, '#000428');
+gradient.addColorStop(1, '#000c1a');
+
+ctx.fillStyle = gradient;
+ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+var texture = PIXI.Texture.from(canvas);
+var sprite = new PIXI.Sprite(texture);
+
+sprite.width = app.renderer.width;
+sprite.height = app.renderer.height;
+
+app.stage.addChild(sprite);
+
+//监听窗口大小改变
+setInterval(() => {
+    if (window.innerWidth !== lastWidth || window.innerHeight !== lastHeight) {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
+        gradient.addColorStop(0, '#000428');
+        gradient.addColorStop(1, '#000c1a');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        texture.update();
+        sprite.width = app.renderer.width;
+        sprite.height = app.renderer.height;
+
+        app.renderer.resize(window.innerWidth, window.innerHeight);
+    }
+}, 100);
+
+renderer.renderStars();
 
 /* 初始化服务器列表配置 */
 try {
@@ -101,52 +157,6 @@ document.addEventListener('contextmenu', function (e) {
 });
 
 /* stars */
-var starfield = document.getElementById('starfield');
-var animationNames = [];
-var animationIndex = 0;
-
-function createStar() {
-    var star = document.createElement('div');
-    star.className = 'star';
-
-    var angle = Math.random() * 2 * Math.PI;
-    var distance = Math.random() * 50;
-
-    var startLeft = 50 + distance * Math.cos(angle);
-    var startTop = 50 + distance * Math.sin(angle);
-
-    star.style.left = startLeft + '%';
-    star.style.top = startTop + '%';
-
-    var endLeft = 50 + 100 * Math.cos(angle);
-    var endTop = 50 + 100 * Math.sin(angle);
-
-    if (animationNames.length <= animationIndex) {
-        var css = document.createElement('style');
-        document.head.appendChild(css);
-        animationNames.push('move-star-' + animationIndex);
-        css.sheet.insertRule(`
-            @keyframes ${animationNames[animationIndex]} {
-                to {
-                    transform: translate(${endLeft - startLeft}vw, ${endTop - startTop}vh);
-                }
-            }
-        `, 0);
-        animationIndex++;
-    }
-
-    star.style.animationName = animationNames[animationIndex - 1];
-    star.style.animationDuration = (Math.random() * 5 + 5) + 's';
-    star.style.animationDelay = '0s';
-
-    starfield.appendChild(star);
-
-    star.addEventListener('animationend', function () {
-        starfield.removeChild(star);
-    });
-}
-
-setInterval(createStar, 250);
 
 /* 阻止某些案件行为 */
 window.addEventListener('wheel', function (e) {
@@ -413,9 +423,9 @@ skinPreview.addEventListener('click', function (event) {
     if (skinContainer.style.transform === 'scale(1)') {
         skinContainer.style.transform = 'scale(0)';
     } else {
-        fetch(`https://${serverIp}/skins.json`)
+        fetch(`${serverIp}/skins.json`)
             .then(response => {
-                if (!response.ok) throw new Error(`HTTPS error! status: ${response.status}`);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 return response.json();
             })
             .then(skins => {
@@ -423,7 +433,7 @@ skinPreview.addEventListener('click', function (event) {
 
                 skins.forEach(skin => {
                     const img = document.createElement('img');
-                    img.src = `https://${serverIp}/skins/${skin.name}.png`;
+                    img.src = `${serverIp}/skins/${skin.name}.png`;
                     skinContainer.appendChild(img);
 
                     img.addEventListener('click', function () {
