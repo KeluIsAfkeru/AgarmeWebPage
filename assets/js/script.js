@@ -413,9 +413,9 @@ skinPreview.addEventListener('click', function (event) {
     if (skinContainer.style.transform === 'scale(1)') {
         skinContainer.style.transform = 'scale(0)';
     } else {
-        fetch(`http://${serverIp}/skins.json`)
+        fetch(`https://${serverIp}/skins.json`)
             .then(response => {
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                if (!response.ok) throw new Error(`HTTPS error! status: ${response.status}`);
                 return response.json();
             })
             .then(skins => {
@@ -423,7 +423,7 @@ skinPreview.addEventListener('click', function (event) {
 
                 skins.forEach(skin => {
                     const img = document.createElement('img');
-                    img.src = `http://${serverIp}/skins/${skin.name}.png`;
+                    img.src = `https://${serverIp}/skins/${skin.name}.png`;
                     skinContainer.appendChild(img);
 
                     img.addEventListener('click', function () {
