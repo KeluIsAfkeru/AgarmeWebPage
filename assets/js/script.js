@@ -14,7 +14,7 @@ import {
 } from './settingsManager.js';
 
 const status = new Info();
-const serverIp = "http://127.0.0.1:5500";
+const serverIp = "keluisafkeru.github.io/AgarmeWebPage";
 let currentServer = null;
 let defaultServers = [{
         name: '本地1',
