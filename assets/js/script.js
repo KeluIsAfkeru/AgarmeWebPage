@@ -16,7 +16,7 @@ import {
 } from './settingsManager.js';
 
 const status = new Info();
-const serverIp = "http://git.afkeru.top";
+const serverIp = "https://git.afkeru.top";
 let currentServer = null;
 let defaultServers = [{
         name: '本地1',
@@ -732,14 +732,23 @@ saveButton.addEventListener('click', () => {
 
 window.addEventListener('keydown', (event) => {
     if (activeButton) {
-        activeButton.textContent = event.key.toUpperCase();
+        event.preventDefault(); // 阻止默认行为
+
+        let keyName = event.key;
+        if (keyName === ' ') { // 如果是空格键
+            keyName = 'SPACE'; // 修改为 SPACE
+        }
+
+        activeButton.textContent = keyName.toUpperCase();
         activeButton.classList.remove('glow');
 
         let keybindId = activeButton.id;
         if (keybindId.startsWith('keybind-')) {
             keybindId = keybindId.substring('keybind-'.length);
         }
-        keyManager.setKeybind(keybindId, event.key);
+
+        keyManager.setKeybind(keybindId, keyName); 
+
         console.log(keyManager.getAllKeybinds());
         activeButton = null;
     }
