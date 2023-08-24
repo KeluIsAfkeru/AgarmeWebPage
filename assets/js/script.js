@@ -16,7 +16,7 @@ import {
 } from './settingsManager.js';
 
 const status = new Info();
-const serverIp = "https://git.afkeru.top";
+const serverIp = "https://agar.afkeru.top";
 let currentServer = null;
 let defaultServers = [{
         name: '本地1',
